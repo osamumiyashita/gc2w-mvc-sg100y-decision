@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 <head>
 <meta charset="utf-8">
 <title>GC2W x MVC x SG100Y - {{label}}</title>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 1100px; margin: 2em auto; padding: 0 1em; color: #222; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif; max-width: 1100px; margin: 2em auto; padding: 0 1em; color: #222; }
   h1 { color: #0a7; margin-bottom: 0.2em; }
   h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em; margin-top: 1.6em; }
   .verdict { display: inline-block; padding: 0.5em 1.4em; border-radius: 4px; font-weight: 700; letter-spacing: 0.05em; }
@@ -25,35 +25,35 @@
 <h1>{{label}}</h1>
 <p><span class="verdict {{verdict_class}}">{{verdict}}</span></p>
 
-<h2>Plain-language verdict (101 mode)</h2>
+<h2>やさしい判定（101モード）</h2>
 <pre>{{plain}}</pre>
 
-<h2>Visualizations</h2>
+<h2>可視化</h2>
 <div class="charts">
   <div>{{svg_bar}}</div>
   <div>{{svg_line}}</div>
   <div>{{svg_9box}}</div>
 </div>
 
-<h2>Expert breakdown</h2>
+<h2>専門家向け詳細</h2>
 <table>
-  <tr><th>Metric</th><th>Before</th><th>After</th><th>Delta</th></tr>
-  <tr><td>MVC monthly</td><td>{{mvc_before}}</td><td>{{mvc_after}}</td><td>{{mvc_delta}}</td></tr>
+  <tr><th>指標</th><th>実行前</th><th>実行後</th><th>差分</th></tr>
+  <tr><td>MVC（月次）</td><td>{{mvc_before}}</td><td>{{mvc_after}}</td><td>{{mvc_delta}}</td></tr>
   <tr><td>SG100Y NPV</td><td>{{sg_before}}</td><td>{{sg_after}}</td><td>{{sg_delta}}</td></tr>
-  <tr><td>Composite (GC&sup2;W)</td><td colspan="2" style="text-align:center">{{composite}}</td><td>-</td></tr>
+  <tr><td>合成スコア（GC&sup2;W）</td><td colspan="2" style="text-align:center">{{composite}}</td><td>-</td></tr>
 </table>
 
-<h3>Inputs</h3>
+<h3>入力値</h3>
 <table>
-  <tr><th>IC</th><td>{{ic}}</td><th>Horizon (months)</th><td>{{horizon_months}}</td></tr>
-  <tr><th>ROIC before / after</th><td colspan="3">{{roic_before}} / {{roic_after}}</td></tr>
-  <tr><th>WACC before / after</th><td colspan="3">{{wacc_before}} / {{wacc_after}}</td></tr>
+  <tr><th>投下資本 (IC)</th><td>{{ic}}</td><th>期間（月）</th><td>{{horizon_months}}</td></tr>
+  <tr><th>ROIC 実行前 / 実行後</th><td colspan="3">{{roic_before}} / {{roic_after}}</td></tr>
+  <tr><th>WACC 実行前 / 実行後</th><td colspan="3">{{wacc_before}} / {{wacc_after}}</td></tr>
   <tr><th>Growth / Connection / Confidence</th><td colspan="3">{{growth}} / {{connection}} / {{confidence}}</td></tr>
 </table>
 
-<h2>History (last 10 decisions, DuckDB)</h2>
+<h2>履歴（直近10件、DuckDB）</h2>
 {{history_table}}
 
-<p class="meta">Generated {{ts}} &middot; gc2w-mvc-sg100y-decision serverless I/O &middot; Python + JS + DuckDB only</p>
+<p class="meta">生成日時 {{ts}} &middot; gc2w-mvc-sg100y-decision サーバーレス I/O &middot; Python + JS + DuckDB のみ</p>
 </body>
 </html>

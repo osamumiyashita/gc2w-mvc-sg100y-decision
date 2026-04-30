@@ -21,25 +21,25 @@ def render_101(
 
     if d_sg > 0 and score >= 1.0:
         verdict = "GO"
-        gut = "This decision creates lasting value. The numbers and the position both agree."
+        gut = "この意思決定は持続的に価値を生みます。数字と戦略ポジションの両方が肯定しています。"
     elif d_sg > 0 and score < 1.0:
         verdict = "HOLD"
-        gut = "Numbers say yes, but the strategic position is shaky. Confirm assumptions before committing."
+        gut = "数字は肯定的ですが、戦略ポジションが弱いです。前提を再確認してから実行してください。"
     elif d_sg <= 0 and score >= 1.0:
         verdict = "HOLD"
-        gut = "Strategic position looks strong, but the math does not show value creation. Re-check the IC/ROIC inputs."
+        gut = "戦略ポジションは強いですが、数字が価値創造を示していません。IC / ROIC の入力を見直してください。"
     else:
         verdict = "NO-GO"
-        gut = "This decision destroys value. Either pass, or redesign it before re-evaluating."
+        gut = "この意思決定は価値を破壊します。見送るか、再設計してから再評価してください。"
 
     money_per_month = f"{d_mvc:+,.1f}"
     money_100y = f"{d_sg:+,.1f}"
 
     return "\n".join([
-        f"DECISION: {label}",
-        f"VERDICT:  {verdict}",
-        f"  -> Monthly value change: {money_per_month}",
-        f"  -> 100-year value change: {money_100y}",
-        f"  -> Strategic position:   {cell_label}",
-        f"  -> Plain take: {gut}",
+        f"案件:     {label}",
+        f"判定:     {verdict}",
+        f"  -> 月次の価値変化:   {money_per_month}",
+        f"  -> 100年累計の価値変化: {money_100y}",
+        f"  -> 戦略ポジション:   {cell_label}",
+        f"  -> ひとこと: {gut}",
     ])
