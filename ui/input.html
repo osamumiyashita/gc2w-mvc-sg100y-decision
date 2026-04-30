@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>GC2W x MVC x SG100Y - Decision Input</title>
+<title>GC2W x MVC x SG100Y - 意思決定入力</title>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 760px; margin: 2em auto; padding: 0 1em; color: #222; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif; max-width: 760px; margin: 2em auto; padding: 0 1em; color: #222; }
   h1 { color: #0a7; margin-bottom: 0.2em; }
   p.lead { color: #666; margin-top: 0; }
   fieldset { border: 1px solid #ddd; padding: 1em 1.2em; margin-bottom: 1em; border-radius: 6px; }
@@ -23,79 +23,79 @@
 </head>
 <body>
 <h1>GC&sup2;W &times; MVC &times; SG100Y</h1>
-<p class="lead">Fill the form &rarr; click <b>Compute</b> &rarr; JSON downloads &rarr; Python processes &rarr; output HTML pops up.</p>
+<p class="lead">フォーム入力 &rarr; <b>計算実行</b>クリック &rarr; JSONダウンロード &rarr; Pythonが処理 &rarr; 結果HTMLが表示されます。</p>
 
 <form id="f" onsubmit="return submitForm(event)">
 
 <fieldset>
-  <legend>Decision</legend>
-  <label>Label</label>
-  <input type="text" name="label" value="Decision A" required>
+  <legend>意思決定</legend>
+  <label>ラベル（案件名）</label>
+  <input type="text" name="label" value="意思決定A" required>
 </fieldset>
 
 <fieldset>
-  <legend>Financial</legend>
+  <legend>財務</legend>
   <div class="flex">
     <div>
-      <label>Invested capital (IC)</label>
+      <label>投下資本 (IC)</label>
       <input type="number" step="any" name="ic" value="1000" required>
     </div>
     <div>
-      <label>Horizon (months)</label>
+      <label>期間（月）</label>
       <input type="number" step="1" name="horizon_months" value="1200">
-      <div class="hint">1200 = 100 years</div>
+      <div class="hint">1200 = 100年</div>
     </div>
   </div>
   <div class="flex">
     <div>
-      <label>ROIC before</label>
+      <label>ROIC（実行前）</label>
       <input type="number" step="any" name="roic_before" value="0.08" required>
     </div>
     <div>
-      <label>ROIC after</label>
+      <label>ROIC（実行後）</label>
       <input type="number" step="any" name="roic_after" value="0.12" required>
     </div>
   </div>
   <div class="flex">
     <div>
-      <label>WACC before</label>
+      <label>WACC（実行前）</label>
       <input type="number" step="any" name="wacc_before" value="0.07" required>
     </div>
     <div>
-      <label>WACC after</label>
+      <label>WACC（実行後）</label>
       <input type="number" step="any" name="wacc_after" value="0.075" required>
     </div>
   </div>
-  <div class="hint">Rates as decimals: 0.08 = 8%</div>
+  <div class="hint">小数で入力: 0.08 = 8%</div>
 </fieldset>
 
 <fieldset>
-  <legend>GC&sup2;W (each 0.0 - 1.0)</legend>
+  <legend>GC&sup2;W（各 0.0 - 1.0）</legend>
   <div class="flex">
     <div>
-      <label>Growth</label>
+      <label>Growth（成長性）</label>
       <input type="number" step="0.01" min="0" max="1" name="growth" value="0.05" required>
     </div>
     <div>
-      <label>Connection</label>
+      <label>Connection（つながり）</label>
       <input type="number" step="0.01" min="0" max="1" name="connection" value="0.6" required>
     </div>
     <div>
-      <label>Confidence</label>
+      <label>Confidence（信頼性）</label>
       <input type="number" step="0.01" min="0" max="1" name="confidence" value="0.7" required>
     </div>
   </div>
 </fieldset>
 
-<button type="submit">Compute</button>
+<button type="submit">計算実行</button>
 </form>
 
 <div id="result">
-  <h3>JSON downloaded.</h3>
-  <p><b>Option A</b> &mdash; Drop the file into the project's <code>inbox/</code> folder. If <code>python decide_io.py</code> is still polling, output pops up automatically.</p>
-  <p><b>Option B</b> &mdash; Run this command (auto-copied to clipboard):</p>
+  <h3>JSONをダウンロードしました。</h3>
+  <p><b>方法A</b> &mdash; ファイルをプロジェクトの <code>inbox/</code> フォルダに移動。<code>python decide_io.py</code> がポーリング中なら自動で結果HTMLが開きます。</p>
+  <p><b>方法B</b> &mdash; 以下のコマンドを実行（クリップボードに自動コピー済み）:</p>
   <p class="cmd" id="cmd"></p>
-  <p class="hint">Saved file: <span id="fname"></span></p>
+  <p class="hint">保存ファイル: <span id="fname"></span></p>
 </div>
 
 <script>

@@ -45,14 +45,14 @@ def nine_box_cell(v: GC2W) -> tuple[int, int, str]:
     row = 2 - g_band
     col = s_band
     labels = {
-        (0, 0): "High-G / Weak-base — risky bet",
-        (0, 1): "High-G / Mid-base — scaling candidate",
-        (0, 2): "High-G / Strong-base — flagship",
-        (1, 0): "Mid-G / Weak-base — re-evaluate",
-        (1, 1): "Mid-G / Mid-base — steady core",
-        (1, 2): "Mid-G / Strong-base — cash cow upgrade",
-        (2, 0): "Low-G / Weak-base — divest",
-        (2, 1): "Low-G / Mid-base — harvest",
-        (2, 2): "Low-G / Strong-base — cash cow",
+        (0, 0): "高成長 / 基盤弱 — リスキーな賭け",
+        (0, 1): "高成長 / 基盤中 — スケール候補",
+        (0, 2): "高成長 / 基盤強 — 旗艦事業",
+        (1, 0): "中成長 / 基盤弱 — 再評価",
+        (1, 1): "中成長 / 基盤中 — 安定中核",
+        (1, 2): "中成長 / 基盤強 — 金のなる木の強化",
+        (2, 0): "低成長 / 基盤弱 — 撤退",
+        (2, 1): "低成長 / 基盤中 — 収穫",
+        (2, 2): "低成長 / 基盤強 — 金のなる木",
     }
     return row, col, labels[(row, col)]
