@@ -1,59 +1,152 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<title>GC2W x MVC x SG100Y - {{label}}</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>{{label}} — GC²W × MVC × SG100Y 判定結果 | J-Phoenix Research</title>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif; max-width: 1100px; margin: 2em auto; padding: 0 1em; color: #222; }
-  h1 { color: #0a7; margin-bottom: 0.2em; }
-  h2 { border-bottom: 1px solid #eee; padding-bottom: 0.3em; margin-top: 1.6em; }
-  .verdict { display: inline-block; padding: 0.5em 1.4em; border-radius: 4px; font-weight: 700; letter-spacing: 0.05em; }
-  .verdict.GO { background: #0a7; color: #fff; }
-  .verdict.HOLD { background: #fa0; color: #fff; }
-  .verdict.NOGO { background: #c33; color: #fff; }
-  table { border-collapse: collapse; width: 100%; margin: 0.5em 0; }
-  th, td { border: 1px solid #e0e0e0; padding: 0.45em 0.8em; text-align: left; font-size: 0.95em; }
-  th { background: #f6f6f6; font-weight: 600; }
-  .charts { display: flex; flex-wrap: wrap; gap: 1em; margin: 1em 0; }
-  .charts > div { flex: 1; min-width: 320px; background: #fafafa; padding: 0.6em; border-radius: 6px; border: 1px solid #eee; }
-  pre { background: #f4f4f4; padding: 1em; border-radius: 4px; white-space: pre-wrap; font-family: ui-monospace, Consolas, monospace; font-size: 0.9em; }
-  .meta { color: #888; font-size: 0.85em; margin-top: 2em; text-align: center; }
+:root{--navy:#0a1628;--navy-l:#1a2d4a;--navy-m:#132240;--gold:#c8a84e;--gold-l:#e8d494;--gold-d:#a8893e;
+  --go:#2E7D32;--hold:#F9A825;--nogo:#C62828;
+  --text:#212529;--text-l:#495057;--text-m:#868e96;--bg:#FFFFFF;--bg-alt:#f8f9fa;--border:#e9ecef;
+  --r:2px;--shadow:0 1px 3px rgba(0,0,0,0.08);
+  --font:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  --font-s:'Noto Serif JP','Yu Mincho',serif;
+  --font-m:'Cambria Math','Times New Roman',serif;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;scroll-behavior:smooth;}
+body{font-family:var(--font);color:var(--text);line-height:1.75;background:var(--bg);}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.97);border-bottom:1px solid var(--border);backdrop-filter:blur(8px);}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 24px;}
+.brand{display:flex;align-items:baseline;gap:8px;}
+.brand-name{font-size:15px;font-weight:800;color:var(--navy);letter-spacing:0.5px;font-family:var(--font-s);}
+.brand-tag{font-size:10px;color:var(--text-m);}
+.nav-links{display:flex;gap:14px;}
+.nav-links a{font-size:11px;color:var(--text-l);text-decoration:none;font-weight:600;padding:6px 10px;border-radius:var(--r);transition:all 0.2s;}
+.nav-links a:hover{background:var(--navy);color:#fff;}
+.hero{padding:100px 24px 50px;background:linear-gradient(135deg,var(--navy) 0%,var(--navy-m) 50%,var(--navy-l) 100%);color:#fff;}
+.hero-inner{max-width:1100px;margin:0 auto;}
+.hero-eyebrow{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+.hero h1{font-size:32px;font-weight:800;line-height:1.4;margin-bottom:18px;font-family:var(--font-s);color:#fff;}
+.hero h1 .accent{color:var(--gold);}
+.verdict{display:inline-block;padding:0.6em 1.6em;border-radius:var(--r);font-weight:800;letter-spacing:0.15em;font-size:18px;font-family:var(--font-s);border:1.5px solid;}
+.verdict.GO{background:var(--go);color:#fff;border-color:var(--go);}
+.verdict.HOLD{background:var(--hold);color:var(--navy);border-color:var(--hold);}
+.verdict.NOGO{background:var(--nogo);color:#fff;border-color:var(--nogo);}
+.section{padding:50px 24px;}
+.section-alt{background:var(--bg-alt);}
+.section-dark{background:var(--navy);color:#fff;}
+.container{max-width:1100px;margin:0 auto;}
+.section-eyebrow{font-size:10px;font-weight:700;color:var(--gold-d);letter-spacing:2px;text-transform:uppercase;text-align:center;margin-bottom:8px;}
+.section-dark .section-eyebrow{color:var(--gold);}
+.section-title{font-size:22px;font-weight:800;color:var(--navy);font-family:var(--font-s);text-align:center;margin-bottom:8px;}
+.section-dark .section-title{color:#fff;}
+.section-desc{font-size:13px;color:var(--text-l);text-align:center;max-width:680px;margin:0 auto 32px;line-height:1.85;}
+.section-dark .section-desc{color:rgba(255,255,255,0.75);}
+.plain-box{background:#fff;border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--r);padding:22px 26px;box-shadow:var(--shadow);font-family:ui-monospace,Consolas,monospace;font-size:13px;line-height:2;white-space:pre-wrap;color:var(--text);}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin-top:24px;}
+.chart-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);text-align:center;}
+.chart-card svg{max-width:100%;height:auto;}
+.chart-caption{font-size:10px;color:var(--text-m);margin-top:8px;letter-spacing:1px;text-transform:uppercase;font-weight:700;}
+table{border-collapse:collapse;width:100%;margin:0.5em 0;background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);}
+th,td{border-bottom:1px solid var(--border);padding:0.7em 1em;text-align:left;font-size:13px;}
+th{background:var(--navy);color:#fff;font-weight:700;letter-spacing:0.5px;font-size:11px;text-transform:uppercase;}
+tr:last-child td{border-bottom:0;}
+tr:nth-child(even) td{background:var(--bg-alt);}
+.section-dark table{background:var(--navy-m);border-color:var(--navy-l);}
+.section-dark th{background:var(--gold);color:var(--navy);}
+.section-dark td{color:rgba(255,255,255,0.85);border-color:var(--navy-l);}
+.section-dark tr:nth-child(even) td{background:rgba(255,255,255,0.03);}
+.footer{background:var(--navy);color:rgba(255,255,255,0.5);padding:24px;text-align:center;font-size:10px;line-height:1.7;}
+@media(max-width:768px){
+  .hero h1{font-size:24px;}.charts{grid-template-columns:1fr;}.nav-links{display:none;}
+}
 </style>
 </head>
 <body>
 
-<h1>{{label}}</h1>
-<p><span class="verdict {{verdict_class}}">{{verdict}}</span></p>
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <span class="brand-name">J-Phoenix Research</span>
+      <span class="brand-tag">GC²W × MVC × SG100Y 判定結果</span>
+    </div>
+    <div class="nav-links">
+      <a href="#verdict">判定</a>
+      <a href="#viz">可視化</a>
+      <a href="#expert">詳細</a>
+      <a href="#history">履歴</a>
+    </div>
+  </div>
+</nav>
 
-<h2>やさしい判定（101モード）</h2>
-<pre>{{plain}}</pre>
+<section class="hero" id="verdict">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Decision Outcome · GC²W × MVC × SG100Y</div>
+    <h1>{{label}} ──<br>
+      <span class="accent">100年視点での判定結果</span></h1>
+    <p style="margin-top:18px;"><span class="verdict {{verdict_class}}">{{verdict}}</span></p>
+  </div>
+</section>
 
-<h2>可視化</h2>
-<div class="charts">
-  <div>{{svg_bar}}</div>
-  <div>{{svg_line}}</div>
-  <div>{{svg_9box}}</div>
-</div>
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-eyebrow">101 Mode · やさしい判定</div>
+    <h2 class="section-title">非専門家向け要約</h2>
+    <p class="section-desc">数字だけでなく「いま何が起きているか」を 6 行に圧縮。MVC 月次変化・100年累計変化・戦略ポジション・ひとことコメントで意思決定の本質を伝えます。</p>
+    <div class="plain-box">{{plain}}</div>
+  </div>
+</section>
 
-<h2>専門家向け詳細</h2>
-<table>
-  <tr><th>指標</th><th>実行前</th><th>実行後</th><th>差分</th></tr>
-  <tr><td>MVC（月次）</td><td>{{mvc_before}}</td><td>{{mvc_after}}</td><td>{{mvc_delta}}</td></tr>
-  <tr><td>SG100Y NPV</td><td>{{sg_before}}</td><td>{{sg_after}}</td><td>{{sg_delta}}</td></tr>
-  <tr><td>合成スコア（GC&sup2;W）</td><td colspan="2" style="text-align:center">{{composite}}</td><td>-</td></tr>
-</table>
+<section class="section" id="viz">
+  <div class="container">
+    <div class="section-eyebrow">Visualizations · 3 SVG Charts</div>
+    <h2 class="section-title">可視化</h2>
+    <p class="section-desc">MVC 月次バー（実行前 vs 実行後）、SG100Y NPV の期間カーブ（最大1200ヶ月＝100年）、GC²W 9-box 戦略ポジション。すべて Python によるピュア SVG 生成（matplotlib 等の依存なし）。</p>
+    <div class="charts">
+      <div class="chart-card">{{svg_bar}}<div class="chart-caption">MVC Monthly Before / After</div></div>
+      <div class="chart-card">{{svg_line}}<div class="chart-caption">SG100Y NPV by Horizon</div></div>
+      <div class="chart-card">{{svg_9box}}<div class="chart-caption">GCC 9-Box Position</div></div>
+    </div>
+  </div>
+</section>
 
-<h3>入力値</h3>
-<table>
-  <tr><th>投下資本 (IC)</th><td>{{ic}}</td><th>期間（月）</th><td>{{horizon_months}}</td></tr>
-  <tr><th>ROIC 実行前 / 実行後</th><td colspan="3">{{roic_before}} / {{roic_after}}</td></tr>
-  <tr><th>WACC 実行前 / 実行後</th><td colspan="3">{{wacc_before}} / {{wacc_after}}</td></tr>
-  <tr><th>Growth / Connection / Confidence</th><td colspan="3">{{growth}} / {{connection}} / {{confidence}}</td></tr>
-</table>
+<section class="section section-alt" id="expert">
+  <div class="container">
+    <div class="section-eyebrow">Expert Mode · 専門家向け詳細</div>
+    <h2 class="section-title">指標サマリー</h2>
+    <p class="section-desc">MVC（月次価値創造）、SG100Y NPV（100年累計の現在価値）、GC²W 合成スコアを実行前後で比較。海憲法 §2・§9・§3 の数学的定義に基づく。</p>
 
-<h2>履歴（直近10件、DuckDB）</h2>
-{{history_table}}
+    <table>
+      <tr><th>指標</th><th>実行前</th><th>実行後</th><th>差分</th></tr>
+      <tr><td>MVC（月次）</td><td>{{mvc_before}}</td><td>{{mvc_after}}</td><td><strong>{{mvc_delta}}</strong></td></tr>
+      <tr><td>SG100Y NPV</td><td>{{sg_before}}</td><td>{{sg_after}}</td><td><strong>{{sg_delta}}</strong></td></tr>
+      <tr><td>合成スコア（GC²W）</td><td colspan="2" style="text-align:center">{{composite}}</td><td>—</td></tr>
+    </table>
 
-<p class="meta">生成日時 {{ts}} &middot; gc2w-mvc-sg100y-decision サーバーレス I/O &middot; Python + JS + DuckDB のみ</p>
+    <h3 style="font-size:14px;font-weight:800;color:var(--navy);font-family:var(--font-s);margin:32px 0 12px;letter-spacing:0.5px;">入力値</h3>
+    <table>
+      <tr><th>投下資本 (IC)</th><td>{{ic}}</td><th>期間（月）</th><td>{{horizon_months}}</td></tr>
+      <tr><th>ROIC 実行前 / 実行後</th><td colspan="3">{{roic_before}} / {{roic_after}}</td></tr>
+      <tr><th>WACC 実行前 / 実行後</th><td colspan="3">{{wacc_before}} / {{wacc_after}}</td></tr>
+      <tr><th>Growth / Connection / Confidence</th><td colspan="3">{{growth}} / {{connection}} / {{confidence}}</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="section section-dark" id="history">
+  <div class="container">
+    <div class="section-eyebrow">History · 直近 10 件</div>
+    <h2 class="section-title">DuckDB 蓄積履歴</h2>
+    <p class="section-desc">同一 DuckDB ファイル（<code>data/decisions.duckdb</code>）に記録された直近 10 件の意思決定。同一案件の複数シナリオ比較や、判定基準の経時変化のレビューに利用できます。</p>
+    {{history_table}}
+  </div>
+</section>
+
+<footer class="footer">
+  © 2026 J-Phoenix Research, Inc.&nbsp;&nbsp;|&nbsp;&nbsp;
+  Generated {{ts}}&nbsp;&nbsp;|&nbsp;&nbsp;
+  gc2w-mvc-sg100y-decision · Serverless I/O · Python + JS + DuckDB only
+</footer>
+
 </body>
 </html>
