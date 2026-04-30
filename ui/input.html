@@ -85,7 +85,7 @@ input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(200,
     <h1>GC²W × MVC × SG100Y ──<br>
       <span class="accent">100年視点の意思決定エンジン</span></h1>
     <p class="hero-desc">
-      フォームに入力 → <strong style="color:#fff;">計算実行</strong> をクリック → JSON が自動ダウンロード → Python が DuckDB に記録し SVG グラフを生成 → 結果 HTML が立ち上がります。サーバー常駐なし、Python + JS + DuckDB の3要素のみで動作する完全サーバーレス I/O。
+      フォームに入力 → <strong style="color:#fff;">計算実行</strong> をクリック → JSON が <code style="color:var(--gold-l);">inbox/</code> に直接書き込まれ → Python ウォッチャーが DuckDB へ記録 + SVG を生成 → 結果 HTML が自動で立ち上がります。<strong style="color:var(--gold);">保存ダイアログ無し</strong>。初回のみプロジェクトフォルダの許可が必要です。サーバー常駐なし、Python + JS + DuckDB の3要素のみ。
     </p>
     <div class="metric-row">
       <div class="metric"><div class="metric-num">3</div><div class="metric-label">入力グループ</div></div>
@@ -170,11 +170,10 @@ input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(200,
     </form>
 
     <div class="result-panel" id="result">
-      <h3>JSON をダウンロードしました</h3>
-      <p><strong>方法 A</strong> ── ファイルをプロジェクトの <code>inbox/</code> フォルダへ移動。<code>python decide_io.py</code> がポーリング中なら自動で結果 HTML が開きます。</p>
-      <p><strong>方法 B</strong> ── 以下のコマンドを実行（クリップボードに自動コピー済み）:</p>
-      <p class="cmd" id="cmd"></p>
-      <p class="hint">保存ファイル: <span id="fname"></span></p>
+      <h3 id="result-title">送信しました</h3>
+      <p id="result-msg"></p>
+      <p class="cmd" id="cmd" style="display:none;"></p>
+      <p class="hint" id="result-hint"></p>
     </div>
 
   </div>
@@ -187,7 +186,115 @@ input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(200,
 </footer>
 
 <script>
-function submitForm(e) {
+const IDB_NAME = 'gc2w-silent';
+const IDB_STORE = 'handles';
+const IDB_KEY = 'projectRoot';
+
+function idbOpen() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore(IDB_STORE);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbGet(key) {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, 'readonly');
+    const req = tx.objectStore(IDB_STORE).get(key);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbPut(key, value) {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put(value, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function getProjectRootHandle() {
+  let handle = await idbGet(IDB_KEY);
+  if (handle) {
+    const perm = await handle.queryPermission({mode: 'readwrite'});
+    if (perm === 'granted') return handle;
+    const re = await handle.requestPermission({mode: 'readwrite'});
+    if (re === 'granted') return handle;
+  }
+  handle = await window.showDirectoryPicker({mode: 'readwrite', id: 'gc2w-root'});
+  await idbPut(IDB_KEY, handle);
+  return handle;
+}
+
+async function writeJsonToInbox(root, fname, jsonText) {
+  const inbox = await root.getDirectoryHandle('inbox', {create: true});
+  const fileHandle = await inbox.getFileHandle(fname, {create: true});
+  const w = await fileHandle.createWritable();
+  await w.write(jsonText);
+  await w.close();
+}
+
+function setText(id, text) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  return el;
+}
+function clearChildren(id) {
+  const el = document.getElementById(id);
+  while (el.firstChild) el.removeChild(el.firstChild);
+  return el;
+}
+function appendCode(parentId, codeText) {
+  const code = document.createElement('code');
+  code.textContent = codeText;
+  document.getElementById(parentId).appendChild(code);
+}
+function appendText(parentId, text) {
+  document.getElementById(parentId).appendChild(document.createTextNode(text));
+}
+function appendStrong(parentId, text) {
+  const s = document.createElement('strong');
+  s.textContent = text;
+  document.getElementById(parentId).appendChild(s);
+}
+
+function showResultMsg(titleText, buildMsg, cmdText, hintBuilder) {
+  setText('result-title', titleText);
+  clearChildren('result-msg');
+  if (buildMsg) buildMsg();
+  const cmd = document.getElementById('cmd');
+  if (cmdText) { cmd.textContent = cmdText; cmd.style.display = 'block'; }
+  else { cmd.style.display = 'none'; }
+  clearChildren('result-hint');
+  if (hintBuilder) hintBuilder();
+  const r = document.getElementById('result');
+  r.style.display = 'block';
+  r.scrollIntoView({behavior: 'smooth', block: 'center'});
+}
+
+function fallbackBlobDownload(fname, jsonText) {
+  const blob = new Blob([jsonText], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = fname;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  const cmd = 'python decide_io.py compute "%USERPROFILE%\\Downloads\\' + fname + '"';
+  if (navigator.clipboard) navigator.clipboard.writeText(cmd).catch(() => {});
+  showResultMsg(
+    'JSON をダウンロードしました（フォールバック）',
+    () => appendText('result-msg', 'お使いのブラウザは File System Access API に未対応のため、従来方式でダウンロードしました。下記コマンドをコピー済み。'),
+    cmd,
+    () => appendText('result-hint', '保存ファイル: ' + fname)
+  );
+}
+
+async function submitForm(e) {
   e.preventDefault();
   const fd = new FormData(document.getElementById('f'));
   const data = {};
@@ -196,20 +303,50 @@ function submitForm(e) {
   }
   const ts = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
   const fname = 'decide_input_' + ts + '.json';
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = fname;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  const cmd = 'python decide_io.py compute "%USERPROFILE%\\Downloads\\' + fname + '"';
-  document.getElementById('cmd').textContent = cmd;
-  document.getElementById('fname').textContent = fname;
-  document.getElementById('result').style.display = 'block';
-  document.getElementById('result').scrollIntoView({behavior: 'smooth', block: 'center'});
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(cmd).catch(() => {});
+  const jsonText = JSON.stringify(data, null, 2);
+
+  if (typeof window.showDirectoryPicker !== 'function') {
+    fallbackBlobDownload(fname, jsonText);
+    return false;
+  }
+  try {
+    const root = await getProjectRootHandle();
+    await writeJsonToInbox(root, fname, jsonText);
+    showResultMsg(
+      '✓ inbox/ に書き込み完了',
+      () => {
+        appendStrong('result-msg', fname);
+        appendText('result-msg', ' を ');
+        appendCode('result-msg', 'inbox/');
+        appendText('result-msg', ' へ直接書き込みました。');
+        appendCode('result-msg', 'python decide_io.py');
+        appendText('result-msg', '（または ');
+        appendCode('result-msg', 'python decide_io.py watch');
+        appendText('result-msg', '）が稼働中であれば、数秒以内に DuckDB へ記録され、結果 HTML が自動で開きます。');
+      },
+      null,
+      () => appendText('result-hint', 'プロジェクトフォルダの許可は記憶されており、次回以降は無音でこのフォルダに書き込まれます。')
+    );
+  } catch (err) {
+    const msg = (err && err.message) ? err.message : String(err);
+    if (err && (err.name === 'AbortError' || err.name === 'NotAllowedError')) {
+      showResultMsg(
+        'キャンセルされました',
+        () => appendText('result-msg', 'プロジェクトフォルダの選択がキャンセルされたため、フォールバックとしてダウンロード方式を使用します。'),
+        null,
+        null
+      );
+      fallbackBlobDownload(fname, jsonText);
+      return false;
+    }
+    console.error(err);
+    showResultMsg(
+      'エラー',
+      () => appendText('result-msg', '書き込み中にエラーが発生しました: ' + msg + '。フォールバックします。'),
+      null,
+      null
+    );
+    fallbackBlobDownload(fname, jsonText);
   }
   return false;
 }
