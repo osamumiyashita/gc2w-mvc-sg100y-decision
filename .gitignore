@@ -14,3 +14,10 @@ Thumbs.db
 .pytest_cache/
 htmlcov/
 .coverage
+
+# Runtime artifacts
+outputs/
+inbox/
+data/
+*.duckdb
+*.duckdb.wal

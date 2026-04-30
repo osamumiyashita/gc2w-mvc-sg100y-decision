@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GC2W x MVC x SG100Y - Decision Input</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 760px; margin: 2em auto; padding: 0 1em; color: #222; }
+  h1 { color: #0a7; margin-bottom: 0.2em; }
+  p.lead { color: #666; margin-top: 0; }
+  fieldset { border: 1px solid #ddd; padding: 1em 1.2em; margin-bottom: 1em; border-radius: 6px; }
+  legend { padding: 0 0.4em; color: #0a7; font-weight: 600; }
+  label { display: block; font-size: 0.9em; color: #444; margin: 0.4em 0 0.15em; }
+  input[type=text], input[type=number] { width: 100%; padding: 0.55em 0.7em; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
+  input:focus { outline: none; border-color: #0a7; }
+  button { background: #0a7; color: #fff; border: 0; padding: 0.85em 2em; font-size: 1.05em; border-radius: 4px; cursor: pointer; }
+  button:hover { background: #086; }
+  .flex { display: flex; gap: 1em; }
+  .flex > div { flex: 1; }
+  .hint { color: #888; font-size: 0.82em; margin-top: 0.2em; }
+  .cmd { background: #f4f4f4; padding: 0.8em; border-radius: 4px; font-family: ui-monospace, Consolas, monospace; user-select: all; word-break: break-all; }
+  #result { display: none; background: #e7f7f0; border: 1px solid #0a7; padding: 1em; border-radius: 6px; margin-top: 1em; }
+</style>
+</head>
+<body>
+<h1>GC&sup2;W &times; MVC &times; SG100Y</h1>
+<p class="lead">Fill the form &rarr; click <b>Compute</b> &rarr; JSON downloads &rarr; Python processes &rarr; output HTML pops up.</p>
+
+<form id="f" onsubmit="return submitForm(event)">
+
+<fieldset>
+  <legend>Decision</legend>
+  <label>Label</label>
+  <input type="text" name="label" value="Decision A" required>
+</fieldset>
+
+<fieldset>
+  <legend>Financial</legend>
+  <div class="flex">
+    <div>
+      <label>Invested capital (IC)</label>
+      <input type="number" step="any" name="ic" value="1000" required>
+    </div>
+    <div>
+      <label>Horizon (months)</label>
+      <input type="number" step="1" name="horizon_months" value="1200">
+      <div class="hint">1200 = 100 years</div>
+    </div>
+  </div>
+  <div class="flex">
+    <div>
+      <label>ROIC before</label>
+      <input type="number" step="any" name="roic_before" value="0.08" required>
+    </div>
+    <div>
+      <label>ROIC after</label>
+      <input type="number" step="any" name="roic_after" value="0.12" required>
+    </div>
+  </div>
+  <div class="flex">
+    <div>
+      <label>WACC before</label>
+      <input type="number" step="any" name="wacc_before" value="0.07" required>
+    </div>
+    <div>
+      <label>WACC after</label>
+      <input type="number" step="any" name="wacc_after" value="0.075" required>
+    </div>
+  </div>
+  <div class="hint">Rates as decimals: 0.08 = 8%</div>
+</fieldset>
+
+<fieldset>
+  <legend>GC&sup2;W (each 0.0 - 1.0)</legend>
+  <div class="flex">
+    <div>
+      <label>Growth</label>
+      <input type="number" step="0.01" min="0" max="1" name="growth" value="0.05" required>
+    </div>
+    <div>
+      <label>Connection</label>
+      <input type="number" step="0.01" min="0" max="1" name="connection" value="0.6" required>
+    </div>
+    <div>
+      <label>Confidence</label>
+      <input type="number" step="0.01" min="0" max="1" name="confidence" value="0.7" required>
+    </div>
+  </div>
+</fieldset>
+
+<button type="submit">Compute</button>
+</form>
+
+<div id="result">
+  <h3>JSON downloaded.</h3>
+  <p><b>Option A</b> &mdash; Drop the file into the project's <code>inbox/</code> folder. If <code>python decide_io.py</code> is still polling, output pops up automatically.</p>
+  <p><b>Option B</b> &mdash; Run this command (auto-copied to clipboard):</p>
+  <p class="cmd" id="cmd"></p>
+  <p class="hint">Saved file: <span id="fname"></span></p>
+</div>
+
+<script>
+function submitForm(e) {
+  e.preventDefault();
+  const fd = new FormData(document.getElementById('f'));
+  const data = {};
+  for (const [k, v] of fd.entries()) {
+    data[k] = (k === 'label') ? v : parseFloat(v);
+  }
+  const ts = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
+  const fname = 'decide_input_' + ts + '.json';
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = fname;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  const cmd = 'python decide_io.py compute "%USERPROFILE%\\Downloads\\' + fname + '"';
+  document.getElementById('cmd').textContent = cmd;
+  document.getElementById('fname').textContent = fname;
+  document.getElementById('result').style.display = 'block';
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(cmd).catch(() => {});
+  }
+  return false;
+}
+</script>
+</body>
+</html>
